@@ -4,11 +4,12 @@ version = "0.1.0"
 description = "Quant Ratings engine — multi-dimensional scoring for securities"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi==0.115.6",
-    "uvicorn==0.32.1",
+    "fastapi[standard]==0.115.6",
+    "uvicorn[standard]==0.32.1",
     "sqlalchemy==2.0.36",
     "pydantic==2.10.3",
     "apscheduler==3.10.4",
+    "aiofiles>=23.0.0",
 ]
 
 [project.optional-dependencies]

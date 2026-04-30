@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: quant-ratings
+    runtime: python
+    buildCommand: bash build.sh
+    startCommand: python main.py --no-scheduler
+    healthCheckPath: /health
+    envVars:
+      - key: TWELVE_DATA_API_KEY
+        sync: false
+      - key: POLYGON_API_KEY
+        sync: false
+      - key: FRED_API_KEY
+        sync: false
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.11"

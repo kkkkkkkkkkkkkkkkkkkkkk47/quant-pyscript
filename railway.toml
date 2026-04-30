@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+buildCommand = "bash build.sh"
+
+[deploy]
+startCommand = "python main.py --no-scheduler"
+healthcheckPath = "/health"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
