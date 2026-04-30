@@ -127,7 +127,7 @@ def get_latest_by_asset_class(
         )
 
     try:
-        records = store.get_latest_by_asset_class(ac_enum)
+        records = store.get_latest_by_asset_class(ac_enum.value)
     except StorageError as exc:
         raise HTTPException(
             status_code=503,

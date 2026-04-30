@@ -133,15 +133,31 @@ def _seed_if_empty(store, registry) -> None:
     now = datetime.now(timezone.utc)
 
     seed_data = [
+        # FX Majors
         ("EUR/USD", "FX", 3.85, "Buy",        2.0, 4.0, 4.5, 20, 30, 50, "Major"),
         ("GBP/USD", "FX", 3.20, "Buy",        2.5, 3.5, 3.5, 20, 30, 50, "Major"),
         ("USD/JPY", "FX", 2.40, "Sell",       2.0, 2.5, 2.5, 20, 30, 50, "Major"),
+        ("AUD/USD", "FX", 3.10, "Buy",        2.8, 3.2, 3.2, 20, 30, 50, "Major"),
+        ("USD/CAD", "FX", 2.60, "Neutral",    2.5, 2.8, 2.5, 20, 30, 50, "Major"),
+        # FX Volatile Crosses
         ("GBP/JPY", "FX", 4.60, "Strong Buy", 4.5, 4.8, 4.2, 40, 40, 20, "Volatile_Cross"),
+        ("EUR/JPY", "FX", 3.70, "Buy",        3.5, 3.8, 3.6, 40, 40, 20, "Volatile_Cross"),
+        # FX Emerging
         ("USD/ZAR", "FX", 1.20, "Strong Sell",1.0, 1.5, 1.0, 10, 10, 80, "Emerging"),
-        ("AAPL",    "Equity", 3.55, "Buy",    3.2, 4.1, 3.2, 33.3, 33.3, 33.4, None),
-        ("MSFT",    "Equity", 3.90, "Buy",    3.5, 4.2, 3.8, 33.3, 33.3, 33.4, None),
-        ("BTC/USD", "Crypto", 2.50, "Neutral",2.5, 2.5, 2.5, 33.3, 33.3, 33.4, None),
-        ("ETH/USD", "Crypto", 1.80, "Sell",   1.5, 2.0, 1.8, 33.3, 33.3, 33.4, None),
+        ("USD/NGN", "FX", 1.50, "Sell",       1.5, 1.8, 1.4, 10, 10, 80, "Emerging"),
+        # Equities
+        ("AAPL",   "Equity", 3.55, "Buy",     3.2, 4.1, 3.2, 33.3, 33.3, 33.4, None),
+        ("MSFT",   "Equity", 3.90, "Buy",     3.5, 4.2, 3.8, 33.3, 33.3, 33.4, None),
+        ("GOOGL",  "Equity", 3.40, "Buy",     3.0, 3.8, 3.3, 33.3, 33.3, 33.4, None),
+        ("AMZN",   "Equity", 3.65, "Buy",     3.3, 4.0, 3.5, 33.3, 33.3, 33.4, None),
+        # Indices
+        ("SPY",    "Index",  3.50, "Buy",     3.2, 3.8, 3.4, 33.3, 33.3, 33.4, None),
+        ("QQQ",    "Index",  3.60, "Buy",     3.4, 3.9, 3.4, 33.3, 33.3, 33.4, None),
+        # Commodity
+        ("GLD",    "Commodity", 3.80, "Buy",  3.5, 3.8, 4.0, 33.3, 33.3, 33.4, None),
+        # Crypto
+        ("BTC/USD","Crypto", 2.50, "Neutral", 2.5, 2.5, 2.5, 33.3, 33.3, 33.4, None),
+        ("ETH/USD","Crypto", 1.80, "Sell",    1.5, 2.0, 1.8, 33.3, 33.3, 33.4, None),
     ]
 
     for i, (sid, ac, comp, rating, s, o, e, sp, op, ep, sub) in enumerate(seed_data):

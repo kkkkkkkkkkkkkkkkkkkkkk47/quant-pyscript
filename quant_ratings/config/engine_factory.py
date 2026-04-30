@@ -11,6 +11,7 @@ Usage::
 from __future__ import annotations
 
 import logging
+import os
 from typing import Optional
 
 from sqlalchemy import create_engine as sa_create_engine
@@ -86,9 +87,17 @@ def build_live_engine(
     """
     # --- Security registry ---
     security_registry = SecurityRegistry()
+
+    # Auto-detect securities.json in the project root
+    _auto_path = os.path.join(os.path.dirname(__file__), "..", "..", "securities.json")
+    _auto_path = os.path.normpath(_auto_path)
+
     if securities_config_path:
         security_registry.load(securities_config_path)
         logger.info("Loaded securities from %s", securities_config_path)
+    elif os.path.isfile(_auto_path):
+        security_registry.load(_auto_path)
+        logger.info("Auto-loaded securities from %s (%d securities)", _auto_path, len(security_registry.all_securities()))
     else:
         for sec in _DEFAULT_SECURITIES:
             security_registry.add(sec)
