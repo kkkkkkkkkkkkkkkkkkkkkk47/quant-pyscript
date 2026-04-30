@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
+echo "==> Upgrading pip, setuptools, wheel..."
+python -m pip install --upgrade pip setuptools wheel
+
 echo "==> Installing Python dependencies..."
-pip install --upgrade pip
-pip install "fastapi[standard]==0.115.6" "uvicorn[standard]==0.32.1" \
-    "sqlalchemy==2.0.36" "pydantic==2.10.3" "apscheduler==3.10.4" \
-    "aiofiles>=23.0.0"
+pip install -r requirements.txt
 
 echo "==> Installing Node.js dependencies..."
 cd frontend
