@@ -1,0 +1,5 @@
+[
+  {"identifier": "EUR/USD", "asset_class": "FX", "sub_category": "Major"},
+  {"identifier": "GBP/JPY", "asset_class": "FX", "sub_category": "Volatile_Cross"},
+  {"identifier": "AAPL", "asset_class": "Equity"}
+]

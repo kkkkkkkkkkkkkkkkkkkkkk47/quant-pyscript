@@ -1,0 +1,20 @@
+[
+  {"identifier": "EUR/USD", "asset_class": "FX", "sub_category": "Major"},
+  {"identifier": "GBP/USD", "asset_class": "FX", "sub_category": "Major"},
+  {"identifier": "USD/JPY", "asset_class": "FX", "sub_category": "Major"},
+  {"identifier": "AUD/USD", "asset_class": "FX", "sub_category": "Major"},
+  {"identifier": "USD/CAD", "asset_class": "FX", "sub_category": "Major"},
+  {"identifier": "GBP/JPY", "asset_class": "FX", "sub_category": "Volatile_Cross"},
+  {"identifier": "EUR/JPY", "asset_class": "FX", "sub_category": "Volatile_Cross"},
+  {"identifier": "USD/ZAR", "asset_class": "FX", "sub_category": "Emerging"},
+  {"identifier": "USD/NGN", "asset_class": "FX", "sub_category": "Emerging"},
+  {"identifier": "AAPL",   "asset_class": "Equity", "primary_region": "US", "denominating_currency": "USD"},
+  {"identifier": "MSFT",   "asset_class": "Equity", "primary_region": "US", "denominating_currency": "USD"},
+  {"identifier": "GOOGL",  "asset_class": "Equity", "primary_region": "US", "denominating_currency": "USD"},
+  {"identifier": "AMZN",   "asset_class": "Equity", "primary_region": "US", "denominating_currency": "USD"},
+  {"identifier": "SPY",    "asset_class": "Index",  "primary_region": "US", "denominating_currency": "USD"},
+  {"identifier": "QQQ",    "asset_class": "Index",  "primary_region": "US", "denominating_currency": "USD"},
+  {"identifier": "GLD",    "asset_class": "Commodity", "denominating_currency": "USD"},
+  {"identifier": "BTC/USD","asset_class": "Crypto", "denominating_currency": "USD"},
+  {"identifier": "ETH/USD","asset_class": "Crypto", "denominating_currency": "USD"}
+]
