@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 import threading
 
@@ -104,6 +105,65 @@ def _run_api(host: str = "0.0.0.0", port: int = 8000) -> None:
     uvicorn.run(app, host=host, port=port, log_level="info")
 
 
+def _seed_if_empty(store, registry) -> None:
+    """Seed the database with realistic fallback data if it's completely empty.
+
+    This ensures the UI shows something immediately on first deploy before
+    the first live rating cycle completes.
+    """
+    import uuid
+    from datetime import datetime, timezone, timedelta
+    from quant_ratings.models.rating_record import RatingRecord
+    from quant_ratings.models.weight_profile import WeightProfile
+
+    # Check if any records exist
+    try:
+        securities = registry.all_securities()
+        if not securities:
+            return
+        # Check first security
+        existing = store.get_latest(securities[0].identifier)
+        if existing is not None:
+            logger.info("Database already has data — skipping seed.")
+            return
+    except Exception:
+        return
+
+    logger.info("Database is empty — seeding with fallback data...")
+    now = datetime.now(timezone.utc)
+
+    seed_data = [
+        ("EUR/USD", "FX", 3.85, "Buy",        2.0, 4.0, 4.5, 20, 30, 50, "Major"),
+        ("GBP/USD", "FX", 3.20, "Buy",        2.5, 3.5, 3.5, 20, 30, 50, "Major"),
+        ("USD/JPY", "FX", 2.40, "Sell",       2.0, 2.5, 2.5, 20, 30, 50, "Major"),
+        ("GBP/JPY", "FX", 4.60, "Strong Buy", 4.5, 4.8, 4.2, 40, 40, 20, "Volatile_Cross"),
+        ("USD/ZAR", "FX", 1.20, "Strong Sell",1.0, 1.5, 1.0, 10, 10, 80, "Emerging"),
+        ("AAPL",    "Equity", 3.55, "Buy",    3.2, 4.1, 3.2, 33.3, 33.3, 33.4, None),
+        ("MSFT",    "Equity", 3.90, "Buy",    3.5, 4.2, 3.8, 33.3, 33.3, 33.4, None),
+        ("BTC/USD", "Crypto", 2.50, "Neutral",2.5, 2.5, 2.5, 33.3, 33.3, 33.4, None),
+        ("ETH/USD", "Crypto", 1.80, "Sell",   1.5, 2.0, 1.8, 33.3, 33.3, 33.4, None),
+    ]
+
+    for i, (sid, ac, comp, rating, s, o, e, sp, op, ep, sub) in enumerate(seed_data):
+        try:
+            wp = WeightProfile(asset_class=ac, sub_category=sub,
+                               sentiment_pct=sp, orderflow_pct=op, economic_pct=ep)
+            r = RatingRecord(
+                record_id=str(uuid.uuid4()),
+                security_id=sid, asset_class=ac,
+                composite_score=comp, rating=rating,
+                sentiment_score=s, orderflow_score=o, economic_score=e,
+                weight_profile=wp,
+                data_deficient=(s == 2.5 and o == 2.5 and e == 2.5),
+                computed_at=now - timedelta(minutes=i * 2),
+            )
+            store.save(r)
+        except Exception as exc:
+            logger.warning("Seed skipped for %s: %s", sid, exc)
+
+    logger.info("Seeded %d fallback records.", len(seed_data))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Quant Ratings Engine")
     parser.add_argument(
@@ -130,8 +190,8 @@ def main() -> None:
     parser.add_argument(
         "--port",
         type=int,
-        default=8000,
-        help="API server port (default: 8000)",
+        default=int(os.environ.get("PORT", 8000)),
+        help="API server port (default: $PORT env var or 8000)",
     )
     parser.add_argument(
         "--db",
@@ -156,17 +216,18 @@ def main() -> None:
         _run_once(engine)
         return
 
+    # Seed the database with fallback data if it's empty
+    _seed_if_empty(engine._store, engine._security_registry)
+
     # Start scheduler in background (unless disabled)
     scheduler = None
     if not args.no_scheduler:
         scheduler = _run_scheduler(engine, interval_seconds=args.interval)
 
-        # Run the first cycle immediately so ratings are available before the
-        # first scheduled interval fires
+        # Run the first live cycle immediately in background
         logger.info("Running initial rating cycle...")
         t = threading.Thread(target=engine.run_cycle, daemon=True)
         t.start()
-
     # Start the API server (blocking — runs until Ctrl+C)
     try:
         _run_api(host=args.host, port=args.port)

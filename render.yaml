@@ -3,7 +3,7 @@ services:
     name: quant-ratings
     runtime: python
     buildCommand: bash build.sh
-    startCommand: python main.py --no-scheduler
+    startCommand: python main.py --interval 3600
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
