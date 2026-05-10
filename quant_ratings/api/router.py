@@ -1,9 +1,10 @@
 """FastAPI router for the Quant Ratings API.
 
-Exposes four endpoints:
+Exposes endpoints:
   GET /ratings/{security_id}/latest
   GET /ratings/{security_id}/history
   GET /ratings/asset-class/{asset_class}/latest
+  GET /price/{security_id}
   GET /health
 
 Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 11.4
@@ -11,6 +12,9 @@ Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 11.4
 
 from __future__ import annotations
 
+import json
+import urllib.parse
+import urllib.request
 from datetime import datetime
 from typing import Annotated, Optional
 
@@ -278,3 +282,88 @@ def get_health(
         securities_rated=securities_rated,
         status=status,
     )
+
+
+# ---------------------------------------------------------------------------
+# Real-time price endpoint
+# ---------------------------------------------------------------------------
+
+# Known real-time price sources per asset class
+_TWELVE_DATA_KEY = None  # loaded lazily from api_keys
+
+def _get_twelve_data_key() -> str:
+    global _TWELVE_DATA_KEY
+    if _TWELVE_DATA_KEY is None:
+        from quant_ratings.config.api_keys import TWELVE_DATA_API_KEY
+        _TWELVE_DATA_KEY = TWELVE_DATA_API_KEY
+    return _TWELVE_DATA_KEY
+
+
+def _fetch_price_twelve_data(symbol: str) -> Optional[float]:
+    """Fetch real-time price from Twelve Data /price endpoint."""
+    key = _get_twelve_data_key()
+    url = (
+        f"https://api.twelvedata.com/price"
+        f"?symbol={urllib.parse.quote(symbol)}"
+        f"&apikey={key}"
+    )
+    try:
+        with urllib.request.urlopen(url, timeout=8) as resp:
+            data = json.loads(resp.read().decode())
+            if data.get("status") == "error":
+                return None
+            return float(data["price"])
+    except Exception:
+        return None
+
+
+def _fetch_price_polygon(symbol: str) -> Optional[float]:
+    """Fetch real-time price from Polygon last quote."""
+    from quant_ratings.config.api_keys import POLYGON_API_KEY
+    url = (
+        f"https://api.polygon.io/v2/last/trade/{urllib.parse.quote(symbol)}"
+        f"?apiKey={POLYGON_API_KEY}"
+    )
+    try:
+        with urllib.request.urlopen(url, timeout=8) as resp:
+            data = json.loads(resp.read().decode())
+            results = data.get("results", {})
+            price = results.get("p") or results.get("price")
+            return float(price) if price else None
+    except Exception:
+        return None
+
+
+# Map security identifiers to Twelve Data symbols
+_TD_SYMBOL_MAP: dict[str, str] = {
+    "EUR/USD": "EUR/USD", "GBP/USD": "GBP/USD", "USD/JPY": "USD/JPY",
+    "AUD/USD": "AUD/USD", "USD/CAD": "USD/CAD", "GBP/JPY": "GBP/JPY",
+    "EUR/JPY": "EUR/JPY", "USD/ZAR": "USD/ZAR", "USD/NGN": "USD/NGN",
+    "BTC/USD": "BTC/USD", "ETH/USD": "ETH/USD",
+    "AAPL": "AAPL", "MSFT": "MSFT", "GOOGL": "GOOGL", "AMZN": "AMZN",
+    "SPY": "SPY", "QQQ": "QQQ", "GLD": "GLD",
+}
+
+
+@router.get("/price/{security_id}", include_in_schema=True)
+def get_price(security_id: str) -> dict:
+    """Return the real-time market price for a security.
+
+    Tries Twelve Data first, falls back to Polygon.
+    Returns {"security_id": ..., "price": ..., "source": ...}
+    or {"security_id": ..., "price": null, "source": "unavailable"}.
+    """
+    td_symbol = _TD_SYMBOL_MAP.get(security_id, security_id.replace("/", ""))
+
+    # Try Twelve Data
+    price = _fetch_price_twelve_data(td_symbol)
+    if price is not None:
+        return {"security_id": security_id, "price": price, "source": "twelve_data"}
+
+    # Try Polygon (equities / indices)
+    poly_symbol = security_id.replace("/", "")
+    price = _fetch_price_polygon(poly_symbol)
+    if price is not None:
+        return {"security_id": security_id, "price": price, "source": "polygon"}
+
+    return {"security_id": security_id, "price": None, "source": "unavailable"}

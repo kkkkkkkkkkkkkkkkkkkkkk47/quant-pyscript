@@ -51,3 +51,14 @@ export async function fetchHistory(
 export async function fetchHealth(): Promise<HealthStatus> {
   return request<HealthStatus>('/health');
 }
+
+export async function fetchPrice(securityId: string): Promise<number | null> {
+  try {
+    const data = await request<{ security_id: string; price: number | null; source: string }>(
+      `/price/${encodeURIComponent(securityId)}`,
+    );
+    return data.price;
+  } catch {
+    return null;
+  }
+}
