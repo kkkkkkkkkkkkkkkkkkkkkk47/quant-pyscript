@@ -19,6 +19,7 @@ import { RATING_COLORS, formatDateTime, formatPct, formatScore } from '../utils/
 import { RatingBadge } from './RatingBadge';
 import { HistoryChart } from './HistoryChart';
 import { MonteCarloPanel } from './MonteCarloPanel';
+import { MonteCarloGuardrail } from './MonteCarloGuardrail';
 import { CloseIcon, AlertTriangleIcon } from './icons';
 
 interface Props {
@@ -260,6 +261,21 @@ export function DetailPanel({ record, onClose }: Props) {
               Monte Carlo Simulation
             </h3>
             <MonteCarloPanel record={record} />
+          </div>
+
+          {/* ── TP/SL Guardrail Fan Chart ── */}
+          <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/50">
+            <h3 className="text-sm font-semibold text-gray-200 mb-1 flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+              TP/SL Guardrail Fan Chart
+            </h3>
+            <p className="text-xs text-gray-500 mb-3">
+              Set your Take Profit and Stop Loss levels — see how many simulated paths hit each guardrail first.
+            </p>
+            <MonteCarloGuardrail record={record} />
           </div>
 
           {/* ── Weight profile ── */}
