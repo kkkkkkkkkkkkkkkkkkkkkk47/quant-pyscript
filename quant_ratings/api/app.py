@@ -74,7 +74,7 @@ async def _lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(
-    title="Quant Ratings API",
+    title="Basilica III API",
     description="Multi-dimensional quantitative ratings for FX, equities, indices, commodities, and crypto.",
     version="0.1.0",
     lifespan=_lifespan,

@@ -29,7 +29,7 @@ export function Header({
         <div className="flex items-center gap-3 flex-shrink-0">
           <LogoIcon size={32} />
           <div>
-            <h1 className="text-lg font-bold text-white leading-none">Quant Ratings</h1>
+            <h1 className="text-lg font-bold text-white leading-none">Basilica III</h1>
             <p className="text-xs text-gray-500 leading-none mt-0.5">Live Market Intelligence</p>
           </div>
         </div>

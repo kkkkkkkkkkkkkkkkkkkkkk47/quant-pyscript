@@ -18,6 +18,7 @@ import type { RatingRecord } from '../types';
 import { RATING_COLORS, formatDateTime, formatPct, formatScore } from '../utils/formatters';
 import { RatingBadge } from './RatingBadge';
 import { HistoryChart } from './HistoryChart';
+import { MonteCarloPanel } from './MonteCarloPanel';
 import { CloseIcon, AlertTriangleIcon } from './icons';
 
 interface Props {
@@ -246,6 +247,19 @@ export function DetailPanel({ record, onClose }: Props) {
               7-Day History
             </h3>
             <HistoryChart securityId={record.security_id} />
+          </div>
+
+          {/* ── Monte Carlo simulation ── */}
+          <div className="p-4 rounded-xl bg-gray-800/40 border border-gray-700/50">
+            <h3 className="text-sm font-semibold text-gray-200 mb-3 flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2">
+                <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path d="m4.93 4.93 2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+              Monte Carlo Simulation
+            </h3>
+            <MonteCarloPanel record={record} />
           </div>
 
           {/* ── Weight profile ── */}
